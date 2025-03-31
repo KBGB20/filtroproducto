@@ -1,11 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { obtenerValoraciones } from '../utils/rating';
 import { products } from '../utils/products';
 
 export default function ProductRatingStats() {
   const [resumen, setResumen] = useState<any[]>([]);
   const [historial, setHistorial] = useState<any[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const data = obtenerValoraciones();
@@ -42,7 +44,7 @@ export default function ProductRatingStats() {
       <hr className="my-6" />
 
       <h3 className="text-xl font-semibold mb-2">Historial de Comentarios</h3>
-      <ul className="space-y-2">
+      <ul className="space-y-2 mb-8">
         {historial.slice(-20).reverse().map((item, idx) => (
           <li key={idx} className="border p-2 rounded bg-gray-50">
             <p><strong>Producto:</strong> {products.find(p => p.id === Number(item.productoId))?.name}</p>
@@ -53,6 +55,16 @@ export default function ProductRatingStats() {
           </li>
         ))}
       </ul>
+
+      {/* Botón para volver */}
+      <div className="text-center">
+        <button
+          onClick={() => router.push('/')}
+          className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+        >
+          Volver a la tienda
+        </button>
+      </div>
     </div>
   );
 }
