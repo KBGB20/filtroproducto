@@ -1,24 +1,24 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { products } from '../utils/products';
 import { analizarSentimiento } from '../utils/sentiment';
 import { guardarValoracion } from '../utils/rating';
 
 export default function ProductRatingForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const idFromQuery = searchParams.get('id');
-
-  const [productoId, setProductoId] = useState<number>(idFromQuery ? parseInt(idFromQuery) : 1);
+  const [productoId, setProductoId] = useState<number>(1);
   const [comentario, setComentario] = useState('');
   const [puntuacion, setPuntuacion] = useState(5);
 
+  // Obtener id desde window.location
   useEffect(() => {
-    if (idFromQuery) {
-      setProductoId(parseInt(idFromQuery));
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+      if (id) setProductoId(parseInt(id));
     }
-  }, [idFromQuery]);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +30,7 @@ export default function ProductRatingForm() {
       sentimiento,
       fecha: new Date().toISOString(),
     });
-    router.push('/'); // Redirigir al inicio
+    router.push('/');
   };
 
   return (
