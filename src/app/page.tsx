@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { obtenerPromedio } from "../utils/rating";
 
 export default function Home() {
+  const router = useRouter();
 
-  /* PRODUCTOS */
   const products = [
     { id: 1, name: "Polera Casual", price: "$25", image: "polera_casual.jpg", brand: "Nike", category: "Poleras" },
     { id: 2, name: "Camisa Formal", price: "$40", image: "camisa_formal.jpg", brand: "Zara", category: "Camisas" },
@@ -22,13 +24,8 @@ export default function Home() {
     { id: 15, name: "Botas de Montaña", price: "$120", image: "botas_de_montaña.jpg", brand: "Salomon", category: "Zapatos" },
   ];
 
-  /* ESTADO DE SELECCION */
   const [selectedCategory, setSelectedCategory] = useState("");
-
-  /* MAPEO DE CATEGORIAS */
   const categories = [...new Set(products.map((product) => product.category))];
-
-  /* FILTRACION DE PRODUCTOS */
   const filteredProducts = selectedCategory ? products.filter((product) => product.category === selectedCategory) : products;
 
   return (
@@ -40,7 +37,7 @@ export default function Home() {
 
       {/* Contenedor Principal */}
       <div className="flex gap-6 mt-6">
-        {/* Tabla de Categorías */}
+        {/* Sidebar */}
         <aside className="w-1/4 bg-white p-4 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">Categorías</h2>
           <table className="w-full">
@@ -63,24 +60,48 @@ export default function Home() {
                   </td>
                 </tr>
               ))}
+              <tr>
+                <td
+                  className="cursor-pointer p-2 text-green-600 font-semibold"
+                  onClick={() => router.push("/estadisticas")}
+                >
+                  📊 Ver Estadísticas
+                </td>
+              </tr>
             </tbody>
           </table>
         </aside>
 
-        {/* Sección de Productos */}
+        {/* Productos */}
         <main className="w-3/4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {filteredProducts.map((product) => (
-            <div key={product.id} className="bg-white shadow-lg rounded-xl p-4">
-              <img src={product.image} alt={product.name} className="w-full h-40 object-cover rounded-lg" />
-              <h2 className="text-xl font-semibold mt-2">{product.name}</h2>
-              <p className="text-gray-600">{product.price}</p>
-              <p className="text-sm text-gray-500">Marca: {product.brand}</p>
-              <p className="text-sm text-gray-500">Categoría: {product.category}</p>
-              <button className="mt-3 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-700">
-                Comprar
-              </button>
-            </div>
-          ))}
+          {filteredProducts.map((product) => {
+            const promedio = obtenerPromedio(String(product.id));
+            return (
+              <div key={product.id} className="bg-white shadow-lg rounded-xl p-4 flex flex-col justify-between">
+                <img src={product.image} alt={product.name} className="w-full h-40 object-cover rounded-lg" />
+                <h2 className="text-xl font-semibold mt-2">{product.name}</h2>
+                <p className="text-gray-600">{product.price}</p>
+                <p className="text-sm text-gray-500">Marca: {product.brand}</p>
+                <p className="text-sm text-gray-500">Categoría: {product.category}</p>
+
+                {promedio > 0 && (
+                  <p className="text-yellow-500 mt-1">⭐ {promedio.toFixed(1)} / 5</p>
+                )}
+
+                <div className="mt-3 flex gap-2">
+                  <button className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700 w-full">
+                    Comprar
+                  </button>
+                  <button
+                    onClick={() => router.push(`/valorar?id=${product.id}`)}
+                    className="bg-yellow-400 text-white py-1 px-3 rounded hover:bg-yellow-500 w-full"
+                  >
+                    Valorar
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </main>
       </div>
     </div>
